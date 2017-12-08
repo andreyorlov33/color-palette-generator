@@ -35,8 +35,8 @@ function calculate_hues(hue , sat , bri, hue_offset){
 }
 
 function reduce_hue(hue, x){
-    if(hue + x < 0){
-        return hue + x + 360
+    if(hue - x < 0){
+        return hue - x + 360
     } else {
         return hue + x
     }
