@@ -18,7 +18,7 @@ If App will then validate that hexidecimal values you've entered are infact vali
 in case that a value is not a valid hexidecimal value the App will give a list of invalid hex values and will ask you to re enter them.
 Any values you subsequently enter will be added to the list. Otherwise simply hit RETURN and those values will be omitted form the list. 
 
-You will then be asked for the Hue Offset Degree˚ -- the hue value by witch you want your palette to increment
+You will then be asked for the hue offset degree value -- the hue value (deg˚) by witch you want your palette to increment
 
 The App will then generate a PALETTE.csv file to its root directory
 
