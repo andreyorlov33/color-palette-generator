@@ -14,51 +14,13 @@ Input hexedecimal values of colors that you would like to palette in a signle li
 ```
     #C79121 #ABC721 #21ABC7
 ``` 
-### Prerequisites
+If App will then validate that hexidecimal values you've entered are infact valid,
+in case that a value is not a valid hexidecimal value the App will give a list of invalid hex values and will ask you to re enter them.
+Any values you subsequently enter will be added to the list. Otherwise simply hit RETURN and those values will be omitted form the list. 
 
-What things you need to install the software and how to install them
+You will then be asked for the Hue Offset Degree˚ -- the hue value by witch you want your palette to increment
 
-```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+The App will then generate a PALETTE.csv file to its root directory
 
 ## Authors
 
