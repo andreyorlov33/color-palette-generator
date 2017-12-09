@@ -2,7 +2,7 @@
 export const init = {
     type: 'input',
     name: 'response',
-    message: ' \n Enter HEX values for of your base colors \n Ex: #7F7F7F #c79121 #abc721 ...\n\n >'
+    message: ' \n Enter HEX values for of your base colors \n Ex: #57c721 #c79121 #abc721 ...\n\n >'
 }
 
 export const re_input = {
