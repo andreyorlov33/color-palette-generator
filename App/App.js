@@ -82,7 +82,7 @@ const App = {
         let time = dateformat(now, 'dddd, mmmm dS, yyyy, h:MM:ss TT')
         let csv = `${App.palette_name},${palette_array}`
         let name = `Palete-${App.palette_name}-${time}`
-        fs.writeFileSync(`.CSV/${name}.csv`, csv, err => err? process.stdout.write(err): null)
+        fs.writeFileSync(`./CSV/${name}.csv`, csv, err => err? process.stdout.write(err): null)
         process.stdout.write(' CSV Generated! \n Please check the color-palet-tool directory for PALETTE.csv !')
         wait(2000)
         App.init()
