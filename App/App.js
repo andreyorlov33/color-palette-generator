@@ -14,6 +14,9 @@ const cli = inquirer.createPromptModule()
 const App = {
     init: () => {
         App.clear()
+        App.input_colors = []
+        App.invalid_colors = []
+        App.palette_name = null
         cli(prompt.color_input).then(answer => App.validate(answer.response.trim()))
     },
     palette_name_prompt: ()=>{
