@@ -1,37 +1,57 @@
 import inquirer from 'inquirer'
-import * as promp from './messages.js'
+import * as prompt from './prompts.js'
 import * as _ from 'lodash'
 import fs from 'fs'
+import wait from './utils/wait_timer'
 import HEX_to_RGB from './conversion_functions/hex_to_rgb'
 import RGB_to_HSB from './conversion_functions/rgb_to_hsb'
 import HSB_to_RGB from './conversion_functions/hsb_to_rgb'
+import { palette_name } from './prompts.js';
 
-const prompt = inquirer.createPromptModule()
+const cli = inquirer.createPromptModule()
 
 const App = {
     init: () => {
         App.clear()
-        prompt(promp.init).then(answer=> App.validate(answer.response.trim()))
+        cli(prompt.color_input).then(answer => App.validate(answer.response.trim()))
+    },
+    palette_name_prompt: ()=>{
+        cli(prompt.palette_name)
+        .then(answer => {
+            if (answer.response.trim() == undefined){
+                App.palette_name_prompt()
+            } else {
+                App.palette_name = answer.response 
+                App.prompt_hue()
+            }   
+        })
     },
     validate : (colors) => {
         colors = colors.split(/[ ]+/)
         colors.map( color => App.valid.test(color)? App.input_colors.push(color) : App.invalid_colors.push(color))
-        App.invalid_colors.length > 0 ? App.invalid_promp() : App.prompt_hue()
+        App.invalid_colors.length > 0 ? App.invalid_prompt() : App.palette_name_prompt()
     },
-    invalid_promp: () => {
+    invalid_prompt: () => {
         App.clear()
         process.stdout.write('The following entrees are not valid HEX values ... \n')
         App.invalid_colors.map(i => process.stdout.write(i))
         App.invalid_colors = []
-        prompt(promp.re_input).then(answer=> answer.response.length > 1 ? App.validate(answer.response): App.prompt_hue())
+        cli(prompt.re_input).then(answer => answer.response.length > 1 ? App.validate(answer.response): App.palette_name_prompt())
     },
     prompt_hue: () => {       
         App.input_colors = _.sortedUniq(App.input_colors)
-        prompt(promp.hue_input).then(answer => isNaN(answer.response)? App.prompt_hue() : App.generate_hue_pallet(parseInt(answer.response)))
+        cli(prompt.hue_input).then(answer => isNaN(answer.response)? App.prompt_hue() : App.generate_hue_pallet(parseInt(answer.response)))
     },
     generate_hue_pallet: (hue_offset) => { 
-        let hue_palette = App.input_colors.map(color => App.calculate_hue_progression(color, hue_offset))
-        App.generate_csv(hue_palette)
+        let temp_array = []
+        let palette_array = []
+        App.input_colors.map(color => temp_array.push([App.calculate_hue_progression(color, hue_offset)]))
+        temp_array = temp_array.map(row => row[0].split(','))
+        for(let i =0 ; i < temp_array[0].length; i++){
+            let row = `"${temp_array[0][i].replace(',', '')},${temp_array[1][i].replace(',', '')},${temp_array[2][i].replace(',', '')}"`
+            palette_array.push(row)
+        }
+        App.write_csv(palette_array.join(','))
     },
     calculate_hue_progression: (color, hue_offset) => {
         let RGB = HEX_to_RGB(color)
@@ -49,32 +69,18 @@ const App = {
         }
         return hex_array.toString()
     },
-    generate_csv: (palette_array) => {
-        let csv = ''
-        let header = ['Base Color']
-        let row_length = palette_array[0].split(',').length - 1
-        let offset = 360/row_length
-        let i = 0
-        let offset_degree = 0
-
-        while(i < row_length){
-            if(i == row_length - 1){
-                header.push(`- ${offset}˚`)
-            } else {
-                offset_degree + offset 
-                offset_degree += offset
-                header.push(`+${offset_degree}˚`)
-            }
-            i++
-        }   
-        header = header.join(',')
-        csv += header+'\r\n'
-        palette_array.map(line => csv += line+'\r\n')
-        fs.writeFile('./PALETTE.csv', csv, err => err? process.stdout.write(err): process.stdout.write('written'), App.init())
+    write_csv: (palette_array) => {
+        let csv = `${App.palette_name},${palette_array}`
+        fs.writeFileSync('./PALETTE.csv') 
+        App.palette_name = null
+        process.stdout.write('CSV written! ')
+        wait(2000)
+        App.init()
     },
     valid : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i,
     input_colors : [],
     invalid_colors : [],
+    palette_name : null,
     clear : () => process.stdout.write('\x1Bc') 
 }
 App.init()
