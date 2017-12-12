@@ -24,6 +24,7 @@
   "homepage": "https://github.com/andreyorlov33/color-palette-generator#readme",
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
+    "dateformat": "^3.0.2",
     "inquirer": "^4.0.1",
     "lodash": "^4.17.4"
   },

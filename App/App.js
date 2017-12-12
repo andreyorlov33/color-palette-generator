@@ -3,6 +3,7 @@ import * as prompt from './prompts.js'
 import * as _ from 'lodash'
 import wait from './utils/wait_timer'
 import fs from 'fs'
+import dateformat from 'dateformat'
 import HEX_to_RGB from './conversion_functions/hex_to_rgb'
 import RGB_to_HSB from './conversion_functions/rgb_to_hsb'
 import HSB_to_RGB from './conversion_functions/hsb_to_rgb'
@@ -48,7 +49,14 @@ const App = {
         App.input_colors.map(color => temp_array.push([App.calculate_hue_progression(color, hue_offset)]))
         temp_array = temp_array.map(row => row[0].split(','))
         for(let i =0 ; i < temp_array[0].length; i++){
-            let row = `"${temp_array[0][i].replace(',', '')},${temp_array[1][i].replace(',', '')},${temp_array[2][i].replace(',', '')}"`
+            let value1 = temp_array[0][i].replace(',', '')
+            let value2 = ''
+            let value3 = ''
+
+            temp_array[1] != undefined ? value2 = temp_array[1][i].replace(',', '') : value2 = ''
+            temp_array[2] != undefined ? value3 = temp_array[2][i].replace(',', '') : value3 = ''
+
+            let row = `"${value1},${value2},${value3}"`
             palette_array.push(row)
         }
         App.write_csv(palette_array.join(','))
@@ -70,9 +78,13 @@ const App = {
         return hex_array.toString()
     },
     write_csv: (palette_array) => {
+        let now = new Date()
+        let time = dateformat(now, 'dddd, mmmm dS, yyyy, h:MM:ss TT')
         let csv = `${App.palette_name},${palette_array}`
-        fs.writeFileSync('./PALETTE.csv', csv, err => err? process.stdout.write(err): process.stdout.write('written'))
-        wait(1500)
+        let name = `Palete-${App.palette_name}-${time}`
+        fs.writeFileSync(`.CSV/${name}.csv`, csv, err => err? process.stdout.write(err): null)
+        process.stdout.write(' CSV Generated! \n Please check the color-palet-tool directory for PALETTE.csv !')
+        wait(2000)
         App.init()
     },
     valid : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i,
