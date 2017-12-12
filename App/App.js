@@ -1,8 +1,8 @@
 import inquirer from 'inquirer'
 import * as prompt from './prompts.js'
 import * as _ from 'lodash'
-import fs from 'fs'
 import wait from './utils/wait_timer'
+import fs from 'fs'
 import HEX_to_RGB from './conversion_functions/hex_to_rgb'
 import RGB_to_HSB from './conversion_functions/rgb_to_hsb'
 import HSB_to_RGB from './conversion_functions/hsb_to_rgb'
@@ -71,10 +71,8 @@ const App = {
     },
     write_csv: (palette_array) => {
         let csv = `${App.palette_name},${palette_array}`
-        fs.writeFileSync('./PALETTE.csv') 
-        App.palette_name = null
-        process.stdout.write('CSV written! ')
-        wait(2000)
+        fs.writeFileSync('./PALETTE.csv', csv, err => err? process.stdout.write(err): process.stdout.write('written'))
+        wait(1500)
         App.init()
     },
     valid : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i,
