@@ -3,6 +3,8 @@ import * as prompt from './prompts.js'
 import * as _ from 'lodash'
 import wait from './utils/wait_timer'
 import fs from 'fs'
+import applescript from 'applescript'
+import jsonfile from 'jsonfile'
 import dateformat from 'dateformat'
 import HEX_to_RGB from './conversion_functions/hex_to_rgb'
 import RGB_to_HSB from './conversion_functions/rgb_to_hsb'
@@ -50,12 +52,13 @@ const App = {
         let temp_array = []
         let palette_array = []
         App.input_colors.map(color => temp_array.push([App.calculate_hue_progression(color, hue_offset)]))
+        App.generate_PSD_palette(temp_array)
         temp_array = temp_array.map(row => row[0].split(','))
+       
         for(let i =0 ; i < temp_array[0].length; i++){
             let value1 = temp_array[0][i].replace(',', '')
             let value2 = ''
             let value3 = ''
-
             temp_array[1] != undefined ? value2 = temp_array[1][i].replace(',', '') : value2 = ''
             temp_array[2] != undefined ? value3 = temp_array[2][i].replace(',', '') : value3 = ''
 
@@ -63,6 +66,9 @@ const App = {
             palette_array.push(row)
         }
         App.write_csv(palette_array.join(','))
+    },
+    generate_PSD_palette: (palette_array)=>{
+        jsonfile.writeFile(`./photoshop_script/palette.json`, palette_array, err => err? console.error(err): null)
     },
     calculate_hue_progression: (color, hue_offset) => {
         let RGB = HEX_to_RGB(color)
