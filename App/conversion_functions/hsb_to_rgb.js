@@ -1,5 +1,3 @@
-import RGB_to_HEX from './rgb_to_hex'
-
 function HSB_to_RGB(h, s, v) {
     h = bound(h, 360) * 6;
     s = bound(s, 100)
@@ -18,7 +16,7 @@ function HSB_to_RGB(h, s, v) {
         g: g * 255,
         b: b * 255
     }
-    return RGB_to_HEX(RGB.r, RGB.g, RGB.b)
+    return {r:RGB.r, g:RGB.g, b:RGB.b}
 }
 
 function bound(n, max) {

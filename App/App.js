@@ -1,106 +1,86 @@
 import inquirer from 'inquirer'
 import * as prompt from './prompts.js'
-import * as _ from 'lodash'
-import wait from './utils/wait_timer'
 import fs from 'fs'
-import applescript from 'applescript'
-import jsonfile from 'jsonfile'
-import dateformat from 'dateformat'
-import HEX_to_RGB from './conversion_functions/hex_to_rgb'
-import RGB_to_HSB from './conversion_functions/rgb_to_hsb'
-import HSB_to_RGB from './conversion_functions/hsb_to_rgb'
-import { palette_name } from './prompts.js';
+import generate from './utils/generator.js'
 
 const cli = inquirer.createPromptModule()
+const SVG_DIR = '/Users/Zurg/Desktop/color-palet-tool/SVG/'
 
-const App = {
-    init: () => {
-        App.clear()
-        App.input_colors = []
-        App.invalid_colors = []
-        App.palette_name = null
-        cli(prompt.color_input).then(answer => App.validate(answer.response.trim()))
-    },
-    palette_name_prompt: ()=>{
-        cli(prompt.palette_name)
-        .then(answer => {
-            if (answer.response.trim() == undefined){
-                App.palette_name_prompt()
-            } else {
-                App.palette_name = answer.response 
-                App.prompt_hue()
-            }   
-        })
-    },
-    validate : (colors) => {
-        colors = colors.split(/[ ]+/)
-        colors.map( color => App.valid.test(color)? App.input_colors.push(color) : App.invalid_colors.push(color))
-        App.invalid_colors.length > 0 ? App.invalid_prompt() : App.palette_name_prompt()
-    },
-    invalid_prompt: () => {
-        App.clear()
-        process.stdout.write('The following entrees are not valid HEX values ... \n')
-        App.invalid_colors.map(i => process.stdout.write(i))
-        App.invalid_colors = []
-        cli(prompt.re_input).then(answer => answer.response.length > 1 ? App.validate(answer.response): App.palette_name_prompt())
-    },
-    prompt_hue: () => {       
-        App.input_colors = _.sortedUniq(App.input_colors)
-        cli(prompt.hue_input).then(answer => isNaN(answer.response)? App.prompt_hue() : App.generate_hue_pallet(parseInt(answer.response)))
-    },
-    generate_hue_pallet: (hue_offset) => { 
-        let temp_array = []
-        let palette_array = []
-        App.input_colors.map(color => temp_array.push([App.calculate_hue_progression(color, hue_offset)]))
-        App.generate_PSD_palette(temp_array)
-        temp_array = temp_array.map(row => row[0].split(','))
-       
-        for(let i =0 ; i < temp_array[0].length; i++){
-            let value1 = temp_array[0][i].replace(',', '')
-            let value2 = ''
-            let value3 = ''
-            temp_array[1] != undefined ? value2 = temp_array[1][i].replace(',', '') : value2 = ''
-            temp_array[2] != undefined ? value3 = temp_array[2][i].replace(',', '') : value3 = ''
+class App {
+    constructor(props) {
+        this.asset_name = null
+        this.brightness = null
+        this.saturation = null
+        this.class_2_palette = null
+        this.class_3_palette = null
+        this.class_4_palette = null
+    }
+    init() {
+        this.clear()
+        cli(prompt.init).then(answer => answer.response ? this.asset_propmpt() : this.exit())
+    }
 
-            let row = `"${value1},${value2},${value3}"`
-            palette_array.push(row)
+    async asset_propmpt() {
+        let files = fs.readdirSync(SVG_DIR)
+        files = files.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item))
+        let answer = await cli(prompt.asset_prompt(files))
+        this.asset_name = answer.asset
+        this.brightness_prompt()
+    }
+    async  brightness_prompt() {
+        let answer = await cli(prompt.brightness_prompt)
+        let x = answer.brightness.split('-').pop().trim()
+        if (x == '0%') {
+            this.brightness = 100
+        } else if (x == '100%') {
+            this.brightness = 0
+        } else {
+            this.brightness = null
         }
-        App.write_csv(palette_array.join(','))
-    },
-    generate_PSD_palette: (palette_array)=>{
-        jsonfile.writeFile(`./photoshop_script/palette.json`, palette_array, err => err? console.error(err): null)
-    },
-    calculate_hue_progression: (color, hue_offset) => {
-        let RGB = HEX_to_RGB(color)
-        let HSB = RGB_to_HSB(RGB.r ,RGB.g ,RGB.b)
-        let { bri , sat } = HSB
-        let offset_hue = Math.floor(HSB.hue) + hue_offset
-        let hex_array = [color]
-        let i = 0 
-        while(i < 360/hue_offset){ 
-            offset_hue > 360 ? offset_hue = 360 - offset_hue + hue_offset : null
-            let offset_rgb = HSB_to_RGB(offset_hue, sat*100, bri*100)
-            hex_array.push(offset_rgb)
-            offset_hue += hue_offset
-            i ++
+        this.saturation_prompt()
+    }
+    async saturation_prompt() {
+        let answer = await cli(prompt.saturation_prompt)
+        let x = answer.saturation.split('-').pop().trim()
+        if (x == '0%') {
+            this.saturation = 100
+        } else if (x == '100%') {
+            this.saturation = 0
+        } else {
+            this.saturation = null
         }
-        return hex_array.toString()
-    },
-    write_csv: (palette_array) => {
-        let now = new Date()
-        let time = dateformat(now, 'dddd, mmmm dS, yyyy, h:MM:ss TT')
-        let csv = `${App.palette_name},${palette_array}`
-        let name = `Palete-${App.palette_name}-${time}`
-        fs.writeFileSync(`./CSV/${name}.csv`, csv, err => err? process.stdout.write(err): null)
-        process.stdout.write(' CSV Generated! \n Please check the color-palet-tool directory for PALETTE.csv !')
-        wait(2000)
-        App.init()
-    },
-    valid : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i,
-    input_colors : [],
-    invalid_colors : [],
-    palette_name : null,
-    clear : () => process.stdout.write('\x1Bc') 
+        this.color_prompt()
+    }
+    async color_prompt() {
+        let num = this.asset_name.split('_').shift().split('C').shift()
+        if (num == 1) {
+            let class2 = await cli(prompt.color_palette_range('CLASS 2'))
+            this.class_2_palette = class2.color_palette
+
+        } else if (num == 2) {
+            let class2 = await cli(prompt.color_palette_range('CLASS 2'))
+            let class3 = await cli(prompt.color_palette_range('CLASS 3'))
+            this.class_2_palette = class2.color_palette
+            this.class_3_palette = class3.color_palette
+
+        } else if (num == 3) {
+            let class2 = await cli(prompt.color_palette_range('CLASS 2'))
+            let class3 = await cli(prompt.color_palette_range('CLASS 3'))
+            let class4 = await cli(prompt.color_palette_range('CLASS 4'))
+            this.class_2_palette = class2.color_palette
+            this.class_3_palette = class3.color_palette
+            this.class_4_palette = class4.color_palette
+        }
+        generate(this)
+    }
+    clear() {
+        process.stdout.write('\x1Bc')
+    }
+    exit() {
+        process.exit(0)
+    }
+
 }
-App.init()
 
+let X = new App
+X.init()
