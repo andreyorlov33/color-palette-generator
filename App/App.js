@@ -11,30 +11,21 @@ class App {
         this.asset_name = null
         this.color_count = null
         this.class_2 = {
-            color_palette: null,
-            brightness: null,
             brightness_offset: null,
-            saturation: null,
             saturation_offset: null,
-            start_hex: null,
+            base_hex: null,
             hue_offset: null
         }
         this.class_3 = {
-            color_palette: null,
-            brightness: null,
             brightness_offset: null,
-            saturation: null,
             saturation_offset: null,
-            start_hex: null,
+            base_hex: null,
             hue_offset: null
         }
         this.class_4 = {
-            color_palette: null,
-            brightness: null,
             brightness_offset: null,
-            saturation: null,
             saturation_offset: null,
-            start_hex: null,
+            base_hex: null,
             hue_offset: null
         }
     }
@@ -55,29 +46,32 @@ class App {
         let i = 0
         while (i < this.color_count) {
             let class_num = i + 2
-            let color_palette = await cli(prompt.color_palette_range(`CLASS ${class_num}`))
-            this[`class_${class_num}`].color_palette = color_palette.type
-            let hue_offset = await cli(prompt.hue_offset(`CLASS ${class_num}`))
-            if (this[`class_${class_num}`].color_palette == 'Custom') {
-                let start_hex = await cli(prompt.start_hex(`CLASS ${class_num}`))
-                this[`class_${class_num}`].hue_offset = hue_offset.hue_offset
-                this[`class_${class_num}`].start_hex = start_hex.hex
-            }
-            this.clear()
-            let brightness = await cli(prompt.brightness_prompt(`CLASS ${class_num}`))
+            let CLASS = this[`class_${class_num}`]
+            let base_hex
            
-            if(brightness.value != 'NONE'){
-                let offset = await cli(prompt.offset_prompt(class_num, 'BRIGHTNESS'))
-                this[`class_${class_num}`].brightness = brightness.value.split(' ').shift()
-                this[`class_${class_num}`].brightness_offset = parseInt(offset.value)     
+            let color_palette = await cli(prompt.color_palette_range(`CLASS ${class_num}`))
+            
+            if(color_palette.type == 'Custom' ){
+                base_hex = await cli(prompt.base_hex(`CLASS ${class_num}`))
+                CLASS.base_hex = base_hex.value
+            } else {
+                CLASS.base_hex = color_palette.type.split(' ').pop()
             }
+
+            let hue_offset = await cli(prompt.hue_offset(`CLASS ${class_num}`))
+            hue_offset.hue_offset != NaN ? CLASS.hue_offset = parseInt(hue_offset.hue_offset) : CLASS.hue_offset = 0
+            this.clear()
+            
+            let brightness = await cli(prompt.brightness_prompt(`CLASS ${class_num}`))
+            
+            brightness.value != NaN && brightness.value != ''? CLASS.brightness_offset = parseInt(brightness.value) : CLASS.brightness_offset = 0
+            
             this.clear()
             let saturation = await cli(prompt.saturation_prompt(`CLASS ${class_num}`))
-            if(saturation.value != 'NONE'){
-                let offset = await cli(prompt.offset_prompt(class_num, 'SATURATION'))
-                this[`class_${class_num}`].saturation = brightness.value.split(' ').shift()
-                this[`class_${class_num}`].saturation_offset = parseInt(offset.value)     
-            }
+        
+            saturation.value != NaN && saturation.value != ''? CLASS.saturation_offset = parseInt(saturation.value) : CLASS.saturation_offset = 0
+            this.clear()
+            
             i++
         }
         generate(this)
