@@ -49,7 +49,7 @@ function generator(class_opt){
          _offseted_sat = base_saturation_value - saturation_offset
      }
  
-     console.log('BASE RGB ' + base_rgb)
+     console.log('BASE RGB ' + base_rgb.r, base_rgb.g, base_rgb.b)
      console.log('BASE HSB ' + base_hsb)
      console.log('BASE SAT ' + base_saturation_value)
      console.log('BASE BRI ' + base_brightness_value)
