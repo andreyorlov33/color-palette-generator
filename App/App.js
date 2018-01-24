@@ -57,8 +57,8 @@ class App {
             let class_num = i + 2
             let color_palette = await cli(prompt.color_palette_range(`CLASS ${class_num}`))
             this[`class_${class_num}`].color_palette = color_palette.type
+            let hue_offset = await cli(prompt.hue_offset(`CLASS ${class_num}`))
             if (this[`class_${class_num}`].color_palette == 'Custom') {
-                let hue_offset = await cli(prompt.hue_offset(`CLASS ${class_num}`))
                 let start_hex = await cli(prompt.start_hex(`CLASS ${class_num}`))
                 this[`class_${class_num}`].hue_offset = hue_offset.hue_offset
                 this[`class_${class_num}`].start_hex = start_hex.hex
@@ -80,7 +80,7 @@ class App {
             }
             i++
         }
-        console.log(this)
+        generate(this)
     }
     clear() {
         process.stdout.write('\x1Bc')
