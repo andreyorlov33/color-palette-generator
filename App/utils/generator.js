@@ -17,39 +17,48 @@ export default function generate(asset) {
     
     let string = fs.readFileSync('/Users/Zurg/Desktop/color-palet-tool/SVG/'+asset.asset_name, 'utf8')
     
-    let div_array = []
+ 
     let dir_name = `/Users/Zurg/Desktop/color-palet-tool/OUTPUT/${asset.asset_name.split('.').shift()}/`
+
     if(!fs.existsSync(dir_name)){
         fs.mkdirSync(dir_name)
     }
     
-    for(let i = 0; i < 10; i++){
-        
-        let class_2_hex = class_2_progression[i]
-        let index_2 = string.indexOf('.cls-2{f')+12
-        let hex_substring_2 = string.substring(index_2, index_2+7)
-        let new_svg =  string.replace(hex_substring_2, class_2_progression[i])
+    let div_array = []
 
+    for(let i = 0; i < 10; i++){
+        // replace class 2 with custom classes
+        // let class_2_index = string.indexOf('.cls-2{f')
+        // replace path class with class identifier 
+        let new_svg = string.replace(/cls-2/g, `cls-2_${i}`)
+        let class_2_hex = class_2_progression[i]
+
+        let index_2 = new_svg.indexOf(`.cls-2_${i}{f`)+14
+        let hex_substring_2 = new_svg.substring(index_2, index_2+7)
+        new_svg = new_svg.replace(hex_substring_2, class_2_progression[i])
+       
         if(class_3.base_hex != null){
+            new_svg = new_svg.replace(/cls-3/g, `cls-3_${i}`)
             let class_3_hex = class_3_progression[i]
-            let index_3 = string.indexOf('.cls-3{f')+12
-            let hex_substring_3 = string.substring(index_3, index_3+7)
+            let index_3 = new_svg.indexOf(`.cls-3_${i}{f`)+14
+            let hex_substring_3 = new_svg.substring(index_3, index_3+7)
             new_svg = new_svg.replace(hex_substring_3, class_3_progression[i])
         }
         if(class_4.base_hex != null){
+            new_svg = new_svg.replace(/cls-4/g, `cls-4_${i}`)
             let class_4_hex = class_2_progression[i]
-            let index_4 = string.indexOf('.cls-4{f')+12
-            let hex_substring_4 = string.substring(index_4, index_4+7)
+            let index_4 = new_svg.indexOf(`.cls-4_${i}{f`)+14
+            let hex_substring_4 = new_svg.substring(index_4, index_4+7)
             new_svg = new_svg.replace(hex_substring_4, class_4_progression[i])
-        }
+        }    
         let name = asset.asset_name.split('.').shift()
-        fs.writeFileSync(`/Users/Zurg/Desktop/color-palet-tool/OUTPUT/${name}/${name}_${i}.svg`, new_svg, 'utf8')
+        let div  = `<div style="height: 250px; width: 250px">${new_svg}<div>`
+        div_array.push(div) 
+        //fs.writeFileSync(`/Users/Zurg/Desktop/color-palet-tool/OUTPUT/${name}/${name}_${i}.svg`, new_svg, 'utf8')
     }
-
+    let html = `<html><div style="display:flex; flex-direction:row; flex-wrap: wrap; width:100% height: 250px">${div_array}</div></html>`
     
-
-    
-
+    fs.writeFileSync(`/Users/Zurg/Desktop/color-palet-tool/OUTPUT/${asset.asset_name.split('.').shift()}/${asset.asset_name.split('.').shift()}.html`, html, 'utf8')
 }
 
 function generator(class_opt) {

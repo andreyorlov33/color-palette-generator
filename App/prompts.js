@@ -21,7 +21,7 @@ export const color_palette_range = class_num => {
         type: 'list',
         name: 'type',
         message: `\nSelect "${class_num}" Color Palette Base HEX`,
-        choices: ['Custom',new inquirer.Separator(), 'Red #FF0000',new inquirer.Separator(), 'Orange #FFBD00',new inquirer.Separator(), 'Yellow #FFFF00',new inquirer.Separator(), 'Green-Yellow #7FFF00',new inquirer.Separator(), 'Green #00FF00',new inquirer.Separator(), 'Green-Cyan #00FF7F',new inquirer.Separator(), 'Cyan 00FFFF',new inquirer.Separator(), 'Blue-Cyan #007FFFF',new inquirer.Separator(), 'Blue #0000FF',new inquirer.Separator(), 'Blue-Magenta #7F00FF',new inquirer.Separator(), 'Magenta #FF00FF',new inquirer.Separator(), 'Red-Magenta #FF007F',new inquirer.Separator()]
+        choices: ['Custom',new inquirer.Separator(), 'Red #FF0000',new inquirer.Separator(), 'Orange #FFBD00',new inquirer.Separator(), 'Yellow #FFFF00',new inquirer.Separator(), 'Green-Yellow #7FFF00',new inquirer.Separator(), 'Green #00FF00',new inquirer.Separator(), 'Green-Cyan #00FF7F',new inquirer.Separator(), 'Cyan #00FFFF',new inquirer.Separator(), 'Blue-Cyan #007FFFF',new inquirer.Separator(), 'Blue #0000FF',new inquirer.Separator(), 'Blue-Magenta #7F00FF',new inquirer.Separator(), 'Magenta #FF00FF',new inquirer.Separator(), 'Red-Magenta #FF007F',new inquirer.Separator()]
     }
 
 }
