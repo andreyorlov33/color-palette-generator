@@ -59,22 +59,23 @@ class App {
             }
 
             let hue_offset = await cli(prompt.hue_offset(`CLASS ${class_num}`))
-            hue_offset.hue_offset != NaN ? CLASS.hue_offset = parseInt(hue_offset.hue_offset) : CLASS.hue_offset = 0
-            this.clear()
+            hue_offset.hue_offset != NaN && hue_offset.hue_offset != ''? CLASS.hue_offset = parseInt(hue_offset.hue_offset) : CLASS.hue_offset = 0
+             this.clear()
             
             let brightness = await cli(prompt.brightness_prompt(`CLASS ${class_num}`))
             
             brightness.value != NaN && brightness.value != ''? CLASS.brightness_offset = parseInt(brightness.value) : CLASS.brightness_offset = 0
             
-            this.clear()
+             this.clear()
             let saturation = await cli(prompt.saturation_prompt(`CLASS ${class_num}`))
         
             saturation.value != NaN && saturation.value != ''? CLASS.saturation_offset = parseInt(saturation.value) : CLASS.saturation_offset = 0
-            this.clear()
+             this.clear()
             
             i++
         }
         generate(this)
+        this.init()
     }
     clear() {
         process.stdout.write('\x1Bc')
